@@ -1,121 +1,113 @@
 # AI-Based Resume Analyzer and Job-Fit Scorer
 
 > **Codegnan Hackathon — Data Mavericks Team Submission**  
-> *Domain: AI / Recruitment Tech*
-
-A complete, production-ready, full-stack AI platform built to bridge the gap between job seekers and recruiters. The application accepts candidate resumes (PDF, DOCX, TXT), parses skill profiles using Natural Language Processing (NLP), evaluates formatting compliance, calculates explainable Job-Fit Scores (0–100), ranks candidates on recruiter leaderboards, and provides an **ATS 96%+ Resume Optimization Engine**.
-
----
-
-## Key Features & Capabilities
-
-### 1. 🎓 Student & Job Seeker Portal
-- **Multi-Format Resume Parser**: Instant text extraction from `.pdf`, `.docx`, and plain text.
-- **Explainable Fit Score**: Calculates an overall match score (0–100) using TF-IDF vectorization, cosine semantic similarity, and skill taxonomy coverage.
-- **Skill Gap & Learning Recommendations**: Highlights matched vs missing skills, recommending specific courses to bridge identified gaps.
-- **ATS Formatting Inspector**: Identifies word count deficiencies, missing contact details, and section heading issues.
-- **🚀 One-Click ATS 96%+ Resume Optimizer**: Automatically injects missing skills into experience bullet points and skills sections, generating a downloadable resume draft with a verified **96%+ ATS score**.
-
-### 2. 💼 Recruiter Triage & Ranking Portal
-- **Job Description Management**: Create, edit, and store benchmark job postings.
-- **Bulk Candidate Processing**: Upload multiple candidate resumes at once.
-- **Candidate Leaderboard**: Ranks candidates dynamically based on ATS match scores.
-- **Batch Skill Analytics**: Summarizes top missing skills across applicant pools and calculates average match score distributions.
-
-### 3. 🛡️ Admin Dashboard
-- **Platform Analytics**: Total registered users, total resumes parsed, total analyses run, average platform fit score.
-- **User Account Log**: Track user registrations across `Student`, `Recruiter`, and `Admin` roles.
-
-### 4. 🔒 Strict Email & Password Security
-- **Strict Gmail Format**: Enforces `@gmail.com` ending. Prefix length must be between 6 and 30 characters, using only `a-z`, `0-9`, and `.`. **Cannot be numbers only** (must contain letters).
-- **Password Complexity**: Requires 8–32 characters combining uppercase, lowercase, numbers, and special symbols, rejecting weak patterns (`123456`, `qwerty`).
-- **Clean Form UX**: Inputs feature clean generic placeholders (`"Enter your email address"`, `"Enter your password"`).
+> **Domain:** Artificial Intelligence / Recruitment Technology  
+> **Team Lead:** Sravya Rajana & Team
 
 ---
 
-## Technology Stack
+## 📌 Executive Summary & Problem Statement
 
-- **Backend**: Python 3.11+, FastAPI, Uvicorn, SQLAlchemy (SQLite ORM), PyPDF / pdfplumber, python-docx, Scikit-Learn (TF-IDF & Cosine Similarity), Passlib (Bcrypt), Python-Jose (JWT).
-- **Frontend**: Vite, React 18, Glassmorphic Modern CSS Design Tokens, Lucide Icons.
-- **Deployment**: Single-service Render architecture where FastAPI directly serves compiled Vite React assets.
+Recruiters during hiring hackathons and placement drives receive hundreds of resumes and spend limited seconds scanning each one, often missing highly qualified candidates whose resumes are formatted poorly. Conversely, students and job seekers lack clear, explainable feedback on how well their resumes match target job descriptions or where critical skill gaps lie.
+
+**Our Solution:** An end-to-end AI-powered web platform that accepts resumes (PDF, DOCX, TXT) and target job descriptions, computes an explainable **Job-Fit Score (0–100)** using Natural Language Processing (NLP), highlights matched vs. missing skills, inspects ATS formatting compliance, ranks applicants on recruiter dashboards, and features an interactive **ATS 96%+ Resume Optimization Engine**.
 
 ---
 
-## 🛠️ Step-by-Step Local Setup Guide
+## 🔥 Key Platform Capabilities
 
-Follow these simple steps to run the application on your local computer:
+### 1. 🎓 Student / Job Seeker Portal
+- **Multi-Format Parsing Engine:** Fast text extraction from `.pdf`, `.docx`, and plain text files.
+- **Explainable Job-Fit Score:** Evaluates match percentage (0–100) combining TF-IDF vectorization, cosine semantic similarity, and skill taxonomy dictionary coverage.
+- **Skill Gap & Learning Roadmap:** Highlights matched skills alongside missing skills, suggesting specific online courses to bridge technical gaps.
+- **ATS Formatting Inspector:** Detects word count deficiencies, missing contact details, and non-standard section headings.
+- **🚀 One-Click ATS 96%+ Resume Optimizer:** Intelligently incorporates missing skills into candidate experience bullet points and technical skill sections, generating an upgraded resume draft with a verified **96%+ ATS score**.
 
-### Step 1: Clone Repository & Open Directory
-```bash
-git clone <your-repository-url>
-cd ai-resume-analyzer
+### 2. 💼 Recruiter Triage & Candidate Ranking Portal
+- **Job Description Management:** Create, store, and manage benchmark job roles.
+- **Bulk Resume Upload:** Upload and evaluate multiple applicant resumes simultaneously.
+- **Candidate Leaderboard:** Automatically ranks candidates sorted by fit score with matched/missing skill badges.
+- **Batch Skill Shortage Analytics:** Identifies the most common missing skills across applicant batches and plots match score distributions.
+
+### 3. 🛡️ System Admin Analytics
+- **Platform Usage Metrics:** Real-time stats on total users, total parsed resumes, total analyses executed, and average system match scores.
+- **User Management Log:** Monitors account registrations across Student, Recruiter, and Admin roles.
+
+### 4. 🔒 Enterprise Security & Input Validation
+- **Strict Gmail Format Rules:** Enforces `@gmail.com` addresses with 6 to 30 character usernames containing letters `a-z`, numbers `0-9`, and periods `.`. Rejects numbers-only usernames.
+- **Password Strength Rules:** Requires 8–32 characters combining uppercase, lowercase, numbers, and special symbols, blocking common insecure patterns (`123456`, `qwerty`).
+
+---
+
+## 🏗️ Technical Architecture & Stack
+
+```
+           +-------------------------------------------------+
+           |           React + Vite Modern UI                |
+           |   (Glassmorphic High-Contrast Dark Theme)       |
+           +------------------------+------------------------+
+                                    |
+                                    v
+           +-------------------------------------------------+
+           |                 FastAPI Backend                 |
+           |       (CORS, JWT Auth, Role-Based Access)       |
+           +------------------------+------------------------+
+                                    |
+           +------------------------+------------------------+
+           |                                                 |
+           v                                                 v
++-----------------------+                         +-----------------------+
+|  NLP Scorer & Engine  |                         |  SQLAlchemy (SQLite)  |
+|  - TF-IDF Vectorizer  |                         |  - Users              |
+|  - Cosine Similarity  |                         |  - Resumes            |
+|  - ATS 96%+ Booster   |                         |  - JobDescriptions    |
++-----------------------+                         |  - AnalysisResults    |
+                                                  +-----------------------+
 ```
 
-### Step 2: Set Up Backend (FastAPI)
-1. Open a terminal in the project root:
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
-2. Start the FastAPI server:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
-   *The backend will start at `http://localhost:8000` and automatically populate sample job descriptions.*
-
-### Step 3: Set Up Frontend (Vite + React)
-1. Open a second terminal window in the project root:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-2. Open your browser and navigate to: `http://localhost:3000`
+- **Frontend:** React 18, Vite, Custom CSS Tokens, Glassmorphism UI Components.
+- **Backend:** Python 3.11+, FastAPI, Uvicorn, SQLAlchemy, SQLite, Scikit-Learn, PyPDF, Python-Docx, Passlib/Bcrypt, Python-Jose (JWT).
+- **Deployment:** Single-service architecture hosted on Render.
 
 ---
 
-## 🌐 Step-by-Step Render Deployment Guide (For Hackathon Submission)
+## 💾 Database Entity Schema
 
-To give your evaluators a working live URL where clicking **"Visit Site"** opens the application directly:
-
-### Step 1: Build & Verify Production Static Assets Locally
-1. Build the React frontend into `frontend/dist`:
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   cd ..
-   ```
-
-### Step 2: Push Code to GitHub
-1. Initialize git and commit:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit for Codegnan Hackathon Submission"
-   ```
-2. Push your code to your GitHub repository:
-   ```bash
-   git branch -M main
-   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/ai-resume-analyzer.git
-   git push -u origin main
-   ```
-
-### Step 3: Deploy on Render (Free Tier)
-1. Go to [Render Dashboard](https://dashboard.render.com/) and click **New +** -> **Web Service**.
-2. Connect your GitHub repository `ai-resume-analyzer`.
-3. Configure the Web Service settings:
-   - **Name**: `ai-resume-analyzer`
-   - **Environment**: `Python`
-   - **Build Command**: `./build.sh`
-   - **Start Command**: `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
-4. Click **Create Web Service**.
-5. Once deployment completes, Render will generate a live URL (e.g., `https://ai-resume-analyzer.onrender.com`).
-6. Paste this URL on your GitHub repository header under **Website / Visit Site** link!
-
-When evaluators click the **Visit Site** button, the live application will load immediately!
+1. **`Users`**: `id`, `email`, `password_hash`, `full_name`, `role` (`student`, `recruiter`, `admin`), `created_at`
+2. **`Resumes`**: `id`, `user_id`, `filename`, `raw_text`, `file_type`, `uploaded_at`
+3. **`ParsedProfiles`**: `id`, `resume_id`, `candidate_name`, `contact_info`, `skills`, `education`, `experience`
+4. **`JobDescriptions`**: `id`, `user_id`, `title`, `department`, `raw_text`, `required_skills`, `min_experience`
+5. **`AnalysisResults`**: `id`, `resume_id`, `job_description_id`, `overall_fit_score`, `matched_skills`, `missing_skills`, `section_scores`, `ats_formatting_issues`, `suggestions`, `optimized_resume_text`
 
 ---
 
-## 📝 License & Team Credits
-Developed for **Codegnan Hackathon** by **Data Mavericks Team**.
+## ⚙️ Installation & Developer Guide
+
+### Prerequisites
+- Python 3.9+
+- Node.js 18+
+
+### 1. Backend Setup
+```bash
+cd backend
+pip install -r requirements.txt
+python -m app.seed
+uvicorn app.main:app --reload --port 8000
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open `http://localhost:3000` in your web browser.
+
+---
+
+## 👥 Project Credits & Submission Info
+
+- **Hackathon:** Codegnan Data Mavericks Hackathon (Vizag)
+- **Project Title:** AI-Based Resume Analyzer and Job-Fit Scorer
+- **Team Name:** Data Mavericks
+- **Lead Developer:** Sravya Rajana & Team
