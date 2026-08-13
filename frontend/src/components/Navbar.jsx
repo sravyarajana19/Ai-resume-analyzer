@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Navbar({ activeRole, currentUser, onOpenAuth, onLogout, onSelectRoleTab }) {
+export default function Navbar({ currentUser, onOpenAuth, onLogout }) {
   const currentRole = currentUser?.role;
 
   return (
@@ -25,83 +25,44 @@ export default function Navbar({ activeRole, currentUser, onOpenAuth, onLogout, 
           </div>
         </div>
 
-        {/* Portal Navigation Tabs */}
-        <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', gap: '4px' }}>
-          {/* Student Tab */}
-          <button
-            onClick={() => onSelectRoleTab('student')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: 'none',
-              background: currentRole === 'student' ? '#6366f1' : 'transparent',
-              color: currentRole === 'student' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
+        {/* Center: Shows ONLY the current user's dedicated portal indicator */}
+        <div>
+          {currentUser ? (
+            <div style={{
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            {currentRole === 'student' ? '🎓 My Student Portal' : '🔒 Student Portal'}
-          </button>
-
-          {/* Recruiter Tab */}
-          <button
-            onClick={() => onSelectRoleTab('recruiter')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: 'none',
-              background: currentRole === 'recruiter' ? '#6366f1' : 'transparent',
-              color: currentRole === 'recruiter' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            {currentRole === 'recruiter' ? '💼 My Recruiter Portal' : '🔒 Recruiter Portal'}
-          </button>
-
-          {/* Admin Tab */}
-          <button
-            onClick={() => onSelectRoleTab('admin')}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              border: 'none',
-              background: currentRole === 'admin' ? '#6366f1' : 'transparent',
-              color: currentRole === 'admin' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            {currentRole === 'admin' ? '🛡️ My Admin Analytics' : '🔒 Admin Analytics'}
-          </button>
+              gap: '8px',
+              padding: '8px 20px',
+              borderRadius: '24px',
+              background: currentRole === 'admin' ? 'rgba(244, 63, 94, 0.18)' : currentRole === 'recruiter' ? 'rgba(6, 182, 212, 0.18)' : 'rgba(99, 102, 241, 0.2)',
+              border: `1px solid ${currentRole === 'admin' ? 'rgba(244, 63, 94, 0.4)' : currentRole === 'recruiter' ? 'rgba(6, 182, 212, 0.4)' : 'rgba(99, 102, 241, 0.4)'}`,
+              color: currentRole === 'admin' ? '#fda4af' : currentRole === 'recruiter' ? '#67e8f9' : '#a5b4fc',
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+            }}>
+              {currentRole === 'student' && '🎓 Student & Job Seeker Portal'}
+              {currentRole === 'recruiter' && '💼 Recruiter Command Portal'}
+              {currentRole === 'admin' && '🛡️ System Administrator Workspace'}
+            </div>
+          ) : (
+            <div style={{ color: '#9ca3af', fontSize: '0.88rem', fontWeight: 500 }}>
+              AI-Based Resume Analyzer & Job-Fit Scorer
+            </div>
+          )}
         </div>
 
         {/* User Account / Auth Actions */}
         <div>
           {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#ffffff' }}>{currentUser.full_name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#06b6d4', textTransform: 'capitalize', fontWeight: 600 }}>
+                <div style={{ fontSize: '0.92rem', fontWeight: 600, color: '#ffffff' }}>{currentUser.full_name}</div>
+                <div style={{ fontSize: '0.75rem', color: currentRole === 'admin' ? '#fb7185' : currentRole === 'recruiter' ? '#38bdf8' : '#34d399', textTransform: 'capitalize', fontWeight: 600 }}>
                   ● {currentUser.role} Account Logged In
                 </div>
               </div>
-              <button onClick={onLogout} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.85rem' }}>
+              <button onClick={onLogout} className="btn-secondary" style={{ padding: '7px 16px', fontSize: '0.85rem' }}>
                 Sign Out
               </button>
             </div>
@@ -120,4 +81,5 @@ export default function Navbar({ activeRole, currentUser, onOpenAuth, onLogout, 
     </header>
   );
 }
+
 
