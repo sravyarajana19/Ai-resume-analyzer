@@ -33,10 +33,6 @@ Recruiters during hiring hackathons and placement drives receive hundreds of res
 - **Platform Usage Metrics:** Real-time stats on total users, total parsed resumes, total analyses executed, and average system match scores.
 - **User Management Log:** Monitors account registrations across Student, Recruiter, and Admin roles.
 
-### 4. 🔒 Enterprise Security & Input Validation
-- **Strict Gmail Format Rules:** Enforces `@gmail.com` addresses with 6 to 30 character usernames containing letters `a-z`, numbers `0-9`, and periods `.`. Rejects numbers-only usernames.
-- **Password Strength Rules:** Requires 8–32 characters combining uppercase, lowercase, numbers, and special symbols, blocking common insecure patterns (`123456`, `qwerty`).
-
 ---
 
 ## 🏗️ Technical Architecture & Stack
