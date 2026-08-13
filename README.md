@@ -1,5 +1,13 @@
 # AI-Based Resume Analyzer and Job-Fit Scorer
 
+[![Live Demo](https://img.shields.io/badge/Live%20Website-Visit%20Site-10b981?style=for-the-badge&logo=render&logoColor=white)](https://ai-resume-analyzer-f2vw.onrender.com/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-6366f1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sravyarajana19/Ai-resume-analyzer)
+
+> 🚀 **LIVE DEPLOYED WEBSITE:** [https://ai-resume-analyzer-f2vw.onrender.com](https://ai-resume-analyzer-f2vw.onrender.com/)  
+> 👉 **Click the link above to open and interact with the live web application!**
+
+---
+
 > **Codegnan Hackathon — Data Mavericks Team Submission**  
 > **Domain:** Artificial Intelligence / Recruitment Technology  
 > **Team Lead:** Sravya Rajana & Team
