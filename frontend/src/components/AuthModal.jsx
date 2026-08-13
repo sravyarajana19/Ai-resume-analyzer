@@ -152,6 +152,7 @@ export default function AuthModal({ isOpen, mode, onClose, onAuthSuccess }) {
               <select className="input-field" value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="student">Student / Job Seeker</option>
                 <option value="recruiter">Recruiter / Hiring Manager</option>
+                <option value="admin">System Administrator</option>
               </select>
             </div>
           )}

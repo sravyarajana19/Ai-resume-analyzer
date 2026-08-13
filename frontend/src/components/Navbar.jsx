@@ -23,57 +23,59 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
           </div>
         </div>
 
-        {/* Role Navigation Tabs */}
-        <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <button
-            onClick={() => setActiveRole('student')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeRole === 'student' ? '#6366f1' : 'transparent',
-              color: activeRole === 'student' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            🎓 Student / Job Seeker
-          </button>
-          <button
-            onClick={() => setActiveRole('recruiter')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeRole === 'recruiter' ? '#6366f1' : 'transparent',
-              color: activeRole === 'recruiter' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            💼 Recruiter Portal
-          </button>
-          <button
-            onClick={() => setActiveRole('admin')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeRole === 'admin' ? '#6366f1' : 'transparent',
-              color: activeRole === 'admin' ? '#ffffff' : '#9ca3af',
-              fontWeight: 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            🛡️ Admin Analytics
-          </button>
-        </div>
+        {/* Role Navigation Tabs (Only visible when user is logged in) */}
+        {currentUser && (
+          <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <button
+              onClick={() => setActiveRole('student')}
+              style={{
+                padding: '8px 18px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeRole === 'student' ? '#6366f1' : 'transparent',
+                color: activeRole === 'student' ? '#ffffff' : '#9ca3af',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              🎓 Student Portal
+            </button>
+            <button
+              onClick={() => setActiveRole('recruiter')}
+              style={{
+                padding: '8px 18px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeRole === 'recruiter' ? '#6366f1' : 'transparent',
+                color: activeRole === 'recruiter' ? '#ffffff' : '#9ca3af',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              💼 Recruiter Portal
+            </button>
+            <button
+              onClick={() => setActiveRole('admin')}
+              style={{
+                padding: '8px 18px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeRole === 'admin' ? '#6366f1' : 'transparent',
+                color: activeRole === 'admin' ? '#ffffff' : '#9ca3af',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              🛡️ Admin Analytics
+            </button>
+          </div>
+        )}
 
         {/* User Account / Auth Actions */}
         <div>
@@ -81,7 +83,9 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#ffffff' }}>{currentUser.full_name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#06b6d4', textTransform: 'capitalize' }}>{currentUser.role} Account</div>
+                <div style={{ fontSize: '0.75rem', color: '#06b6d4', textTransform: 'capitalize' }}>
+                  {currentUser.role} Account
+                </div>
               </div>
               <button onClick={onLogout} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.85rem' }}>
                 Sign Out
