@@ -1,6 +1,8 @@
 import React from 'react';
 
-export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenAuth, onLogout, onSelectRoleTab }) {
+export default function Navbar({ activeRole, currentUser, onOpenAuth, onLogout, onSelectRoleTab }) {
+  const currentRole = currentUser?.role;
+
   return (
     <header className="glass-header">
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
@@ -24,54 +26,68 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
         </div>
 
         {/* Portal Navigation Tabs */}
-        <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', gap: '4px' }}>
+          {/* Student Tab */}
           <button
             onClick={() => onSelectRoleTab('student')}
             style={{
-              padding: '8px 16px',
+              padding: '8px 14px',
               borderRadius: '8px',
               border: 'none',
-              background: (currentUser && currentUser.role === 'student') ? '#6366f1' : 'transparent',
-              color: (currentUser && currentUser.role === 'student') ? '#ffffff' : '#9ca3af',
+              background: currentRole === 'student' ? '#6366f1' : 'transparent',
+              color: currentRole === 'student' ? '#ffffff' : '#9ca3af',
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
               transition: 'all 0.2s'
             }}
           >
-            🎓 Student Portal
+            {currentRole === 'student' ? '🎓 My Student Portal' : '🔒 Student Portal'}
           </button>
+
+          {/* Recruiter Tab */}
           <button
             onClick={() => onSelectRoleTab('recruiter')}
             style={{
-              padding: '8px 16px',
+              padding: '8px 14px',
               borderRadius: '8px',
               border: 'none',
-              background: (currentUser && currentUser.role === 'recruiter') ? '#6366f1' : 'transparent',
-              color: (currentUser && currentUser.role === 'recruiter') ? '#ffffff' : '#9ca3af',
+              background: currentRole === 'recruiter' ? '#6366f1' : 'transparent',
+              color: currentRole === 'recruiter' ? '#ffffff' : '#9ca3af',
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
               transition: 'all 0.2s'
             }}
           >
-            💼 Recruiter Portal
+            {currentRole === 'recruiter' ? '💼 My Recruiter Portal' : '🔒 Recruiter Portal'}
           </button>
+
+          {/* Admin Tab */}
           <button
             onClick={() => onSelectRoleTab('admin')}
             style={{
-              padding: '8px 16px',
+              padding: '8px 14px',
               borderRadius: '8px',
               border: 'none',
-              background: (currentUser && currentUser.role === 'admin') ? '#6366f1' : 'transparent',
-              color: (currentUser && currentUser.role === 'admin') ? '#ffffff' : '#9ca3af',
+              background: currentRole === 'admin' ? '#6366f1' : 'transparent',
+              color: currentRole === 'admin' ? '#ffffff' : '#9ca3af',
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
               transition: 'all 0.2s'
             }}
           >
-            🛡️ Admin Analytics
+            {currentRole === 'admin' ? '🛡️ My Admin Analytics' : '🔒 Admin Analytics'}
           </button>
         </div>
 
@@ -81,8 +97,8 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#ffffff' }}>{currentUser.full_name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#06b6d4', textTransform: 'capitalize' }}>
-                  {currentUser.role} Account
+                <div style={{ fontSize: '0.75rem', color: '#06b6d4', textTransform: 'capitalize', fontWeight: 600 }}>
+                  ● {currentUser.role} Account Logged In
                 </div>
               </div>
               <button onClick={onLogout} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.85rem' }}>
@@ -104,3 +120,4 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
     </header>
   );
 }
+

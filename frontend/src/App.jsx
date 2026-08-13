@@ -8,7 +8,6 @@ import { api } from './api/client';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
-  const [activeRole, setActiveRole] = useState('student');
   
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
@@ -27,9 +26,6 @@ export default function App() {
     try {
       const user = await api.getMe();
       setCurrentUser(user);
-      if (user && user.role) {
-        setActiveRole(user.role);
-      }
     } catch (err) {
       localStorage.removeItem('token');
     }
@@ -43,16 +39,12 @@ export default function App() {
 
   const handleAuthSuccess = (user) => {
     setCurrentUser(user);
-    if (user && user.role) {
-      setActiveRole(user.role);
-    }
     setRolePromptModal(null);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setCurrentUser(null);
-    setActiveRole('student');
   };
 
   const handleSelectRoleTab = (targetRole) => {
@@ -63,7 +55,8 @@ export default function App() {
     }
 
     if (currentUser.role === targetRole) {
-      setActiveRole(targetRole);
+      // User already in their assigned portal
+      return;
     } else {
       // User is logged in with a different role -> Strictly prompt to switch/login as that role
       setRolePromptModal({ targetRole });
@@ -82,8 +75,6 @@ export default function App() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0a0d14', color: '#f3f4f6' }}>
       {/* Header Navigation */}
       <Navbar
-        activeRole={activeRole}
-        setActiveRole={setActiveRole}
         currentUser={currentUser}
         onOpenAuth={(mode) => handleOpenAuth(mode, 'student')}
         onLogout={handleLogout}
@@ -169,15 +160,15 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* Render Active Role Workspace for Logged-In Users */
+          /* Strictly Render ONLY the workspace matching currentUser.role */
           <>
-            {activeRole === 'student' && (
+            {currentUser.role === 'student' && (
               <StudentDashboard currentUser={currentUser} onOpenAuth={(mode) => handleOpenAuth(mode, 'student')} />
             )}
-            {activeRole === 'recruiter' && (
+            {currentUser.role === 'recruiter' && (
               <RecruiterDashboard currentUser={currentUser} onOpenAuth={(mode) => handleOpenAuth(mode, 'recruiter')} />
             )}
-            {activeRole === 'admin' && (
+            {currentUser.role === 'admin' && (
               <AdminDashboard currentUser={currentUser} onOpenAuth={(mode) => handleOpenAuth(mode, 'admin')} />
             )}
           </>
@@ -186,7 +177,7 @@ export default function App() {
 
       {/* Role Restriction Access Prompt Modal */}
       {rolePromptModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(0, 0, 0, 0.82)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '32px', textAlign: 'center', position: 'relative', border: '1px solid rgba(244, 63, 94, 0.4)', background: '#0f172a' }}>
             <button onClick={() => setRolePromptModal(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: '#9ca3af', fontSize: '1.4rem', cursor: 'pointer' }}>
               ✕
@@ -194,25 +185,25 @@ export default function App() {
             
             <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
             <h3 style={{ fontSize: '1.4rem', color: '#ffffff', marginBottom: '12px' }}>
-              {rolePromptModal.targetRole.toUpperCase()} Portal Access Required
+              {rolePromptModal.targetRole === 'recruiter' ? 'Recruiter Portal Login Required' : rolePromptModal.targetRole === 'admin' ? 'Admin Portal Login Required' : 'Student Portal Login Required'}
             </h3>
             <p style={{ color: '#9ca3af', fontSize: '0.92rem', marginBottom: '24px', lineHeight: '1.5' }}>
               {currentUser ? (
-                <>You are currently signed in as <strong>{currentUser.full_name}</strong> (<span style={{ textTransform: 'capitalize', color: '#38bdf8' }}>{currentUser.role}</span> account). To access the <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole} Portal</strong>, please Sign In or Create an Account with a <span style={{ color: '#34d399', textTransform: 'capitalize', fontWeight: 600 }}>{rolePromptModal.targetRole}</span> profile.</>
+                <>You are currently signed in as <strong>{currentUser.full_name}</strong> (<span style={{ textTransform: 'capitalize', color: '#38bdf8', fontWeight: 600 }}>{currentUser.role} account</span>). You cannot view the <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole} Portal</strong> from a {currentUser.role} account.<br/><br/>Please <strong>Sign In</strong> or <strong>Create an Account</strong> with a <span style={{ color: '#34d399', textTransform: 'capitalize', fontWeight: 700 }}>{rolePromptModal.targetRole}</span> profile.</>
               ) : (
-                <>Please Sign In or Create an Account as a <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole}</strong> to access this workspace.</>
+                <>Please <strong>Sign In</strong> or <strong>Create an Account</strong> as a <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole}</strong> to access this workspace.</>
               )}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button onClick={() => handleSwitchAccountAndAuth('login', rolePromptModal.targetRole)} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
+              <button onClick={() => handleSwitchAccountAndAuth('login', rolePromptModal.targetRole)} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '0.95rem' }}>
                 🔑 Sign In to {rolePromptModal.targetRole.toUpperCase()} Account
               </button>
-              <button onClick={() => handleSwitchAccountAndAuth('register', rolePromptModal.targetRole)} className="btn-emerald" style={{ width: '100%', justifyContent: 'center', padding: '12px' }}>
+              <button onClick={() => handleSwitchAccountAndAuth('register', rolePromptModal.targetRole)} className="btn-emerald" style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '0.95rem' }}>
                 ✨ Create New {rolePromptModal.targetRole.toUpperCase()} Account
               </button>
               <button onClick={() => setRolePromptModal(null)} className="btn-secondary" style={{ width: '100%', justifyContent: 'center', padding: '10px', marginTop: '4px' }}>
-                Cancel / Stay on Current Page
+                ✕ Stay in My Current Portal
               </button>
             </div>
           </div>
