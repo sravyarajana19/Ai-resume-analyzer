@@ -124,45 +124,34 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
           )}
 
           <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Target Job Selection */}
+            {/* Direct Target Job Title & Description Inputs */}
             <div>
               <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
-                Select Target Job Description
+                Target Job Title <span style={{ color: '#f43f5e' }}>*</span>
               </label>
-              <select
+              <input
+                type="text"
+                required
                 className="input-field"
-                value={selectedJdId}
-                onChange={(e) => { setSelectedJdId(e.target.value); setCustomJobText(''); }}
-              >
-                <option value="">-- Choose Preset Benchmark Role --</option>
-                {jobs.map(j => (
-                  <option key={j.id} value={j.id}>{j.title} ({j.department})</option>
-                ))}
-              </select>
+                placeholder="Enter Job Title (e.g. Python Developer, Data Analyst, Software Engineer)"
+                value={customJobTitle}
+                onChange={(e) => setCustomJobTitle(e.target.value)}
+              />
             </div>
 
-            {/* Custom JD Paste option */}
-            {!selectedJdId && (
-              <div>
-                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
-                  Or Paste Custom Job Description Text
-                </label>
-                <input
-                  type="text"
-                  className="input-field"
-                  placeholder="Enter Job Title (e.g. Senior Data Analyst)"
-                  value={customJobTitle}
-                  onChange={(e) => setCustomJobTitle(e.target.value)}
-                  style={{ marginBottom: '8px' }}
-                />
-                <textarea
-                  className="textarea-field"
-                  placeholder="Paste complete Job Description requirements & responsibilities..."
-                  value={customJobText}
-                  onChange={(e) => setCustomJobText(e.target.value)}
-                />
-              </div>
-            )}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
+                Target Job Description Requirements <span style={{ color: '#f43f5e' }}>*</span>
+              </label>
+              <textarea
+                required
+                className="textarea-field"
+                placeholder="Paste the full Job Description text, required technical skills, and responsibilities here..."
+                value={customJobText}
+                onChange={(e) => setCustomJobText(e.target.value)}
+                style={{ minHeight: '140px' }}
+              />
+            </div>
 
             {/* Upload File / Paste Resume */}
             <div>

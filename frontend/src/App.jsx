@@ -13,6 +13,9 @@ export default function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
 
+  // Role Access Restriction Prompt Modal State
+  const [rolePromptModal, setRolePromptModal] = useState(null); // { targetRole: 'recruiter' | 'admin' | 'student' }
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -41,11 +44,28 @@ export default function App() {
     if (user && user.role) {
       setActiveRole(user.role);
     }
+    setRolePromptModal(null);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setCurrentUser(null);
+    setActiveRole('student');
+  };
+
+  const handleSelectRoleTab = (targetRole) => {
+    if (!currentUser) {
+      // User not logged in -> Prompt login
+      setRolePromptModal({ targetRole });
+      return;
+    }
+
+    if (currentUser.role === targetRole || currentUser.role === 'admin') {
+      setActiveRole(targetRole);
+    } else {
+      // User is logged in with a different role -> Prompt role account sign in/up
+      setRolePromptModal({ targetRole });
+    }
   };
 
   return (
@@ -57,6 +77,7 @@ export default function App() {
         currentUser={currentUser}
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
+        onSelectRoleTab={handleSelectRoleTab}
       />
 
       {/* Main Content Body */}
@@ -80,7 +101,7 @@ export default function App() {
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
                 <button onClick={() => handleOpenAuth('login')} className="btn-primary" style={{ padding: '14px 28px', fontSize: '1rem' }}>
-                  🔑 Sign In to Your Portal
+                  🔑 Sign In to Your Account
                 </button>
                 <button onClick={() => handleOpenAuth('register')} className="btn-emerald" style={{ padding: '14px 28px', fontSize: '1rem' }}>
                   ✨ Create New Account
@@ -100,11 +121,11 @@ export default function App() {
                   <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🎓</div>
                   <h3 style={{ fontSize: '1.3rem', marginBottom: '8px', color: '#ffffff' }}>Student / Job Seeker</h3>
                   <p style={{ color: '#9ca3af', fontSize: '0.9rem', marginBottom: '16px' }}>
-                    Upload your PDF/DOCX resume, compare skills against job descriptions, view match scores (0-100), inspect formatting errors, and auto-generate an ATS 96%+ optimized resume draft.
+                    Paste your target job title & job description, upload your PDF/DOCX resume, analyze matched & missing skills, and auto-generate an ATS 96%+ optimized formal resume draft.
                   </p>
                 </div>
-                <button onClick={() => handleOpenAuth('register')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-                  Register as Student
+                <button onClick={() => handleSelectRoleTab('student')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                  Access Student Portal
                 </button>
               </div>
 
@@ -117,8 +138,8 @@ export default function App() {
                     Post benchmark job postings, bulk upload applicant resumes, view candidate rankings sorted by fit score on a leaderboard, and analyze batch skill shortages.
                   </p>
                 </div>
-                <button onClick={() => handleOpenAuth('register')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-                  Register as Recruiter
+                <button onClick={() => handleSelectRoleTab('recruiter')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                  Access Recruiter Portal
                 </button>
               </div>
 
@@ -131,8 +152,8 @@ export default function App() {
                     System wide performance analytics, total parsed resumes metrics, average platform match scores, user role distribution, and platform log monitoring.
                   </p>
                 </div>
-                <button onClick={() => handleOpenAuth('register')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-                  Register as Admin
+                <button onClick={() => handleSelectRoleTab('admin')} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                  Access Admin Workspace
                 </button>
               </div>
             </div>
@@ -152,6 +173,38 @@ export default function App() {
           </>
         )}
       </main>
+
+      {/* Role Restriction Access Prompt Modal */}
+      {rolePromptModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '32px', textAlign: 'center', position: 'relative', border: '1px solid rgba(244, 63, 94, 0.4)' }}>
+            <button onClick={() => setRolePromptModal(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: '#9ca3af', fontSize: '1.4rem', cursor: 'pointer' }}>
+              ✕
+            </button>
+            
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
+            <h3 style={{ fontSize: '1.4rem', color: '#ffffff', marginBottom: '12px' }}>
+              Authentication & Role Sign In Required
+            </h3>
+            <p style={{ color: '#9ca3af', fontSize: '0.92rem', marginBottom: '24px', lineHeight: '1.5' }}>
+              {currentUser ? (
+                <>You are currently signed in as <strong>{currentUser.full_name}</strong> ({currentUser.role} account). To access the <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole} Portal</strong>, please Sign In or Create an Account with a <span style={{ color: '#34d399', textTransform: 'capitalize' }}>{rolePromptModal.targetRole}</span> account.</>
+              ) : (
+                <>Please Sign In or Create an Account as a <strong style={{ color: '#06b6d4', textTransform: 'capitalize' }}>{rolePromptModal.targetRole}</strong> to access this workspace.</>
+              )}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => { handleOpenAuth('login'); setRolePromptModal(null); }} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                🔑 Sign In to {rolePromptModal.targetRole.toUpperCase()} Account
+              </button>
+              <button onClick={() => { handleOpenAuth('register'); setRolePromptModal(null); }} className="btn-emerald" style={{ width: '100%', justifyContent: 'center' }}>
+                ✨ Create New {rolePromptModal.targetRole.toUpperCase()} Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '24px', textAlign: 'center', fontSize: '0.82rem', color: '#9ca3af', marginTop: 'auto' }}>
