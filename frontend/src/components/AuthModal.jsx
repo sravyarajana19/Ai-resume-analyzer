@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 
-export default function AuthModal({ isOpen, mode, onClose, onAuthSuccess }) {
+export default function AuthModal({ isOpen, mode, initialRole, onClose, onAuthSuccess }) {
   const [authMode, setAuthMode] = useState(mode || 'login'); // 'login' or 'register'
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState(initialRole || 'student');
   
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (mode) setAuthMode(mode);
+    if (initialRole) setRole(initialRole);
+    setErrorMsg('');
+  }, [isOpen, mode, initialRole]);
 
   if (!isOpen) return null;
 
@@ -38,14 +44,14 @@ export default function AuthModal({ isOpen, mode, onClose, onAuthSuccess }) {
     try {
       if (authMode === 'register') {
         if (!isEmailValid) {
-          throw new Error('Please ensure your Gmail matches all length and character requirements.');
+          throw new Error('Please ensure your Gmail matches all length and character requirements (6-30 chars, letters & numbers, @gmail.com).');
         }
         if (!isPasswordValid) {
-          throw new Error('Please ensure your password satisfies all security criteria.');
+          throw new Error('Please ensure your password satisfies all security criteria (8-32 chars, uppercase, lowercase, numbers, symbols).');
         }
         const data = await api.register({
           full_name: fullName,
-          email,
+          email: email.trim().toLowerCase(),
           password,
           role
         });
@@ -53,31 +59,31 @@ export default function AuthModal({ isOpen, mode, onClose, onAuthSuccess }) {
         onAuthSuccess(data.user);
         onClose();
       } else {
-        const data = await api.login({ email, password });
+        const data = await api.login({ email: email.trim().toLowerCase(), password });
         localStorage.setItem('token', data.access_token);
         onAuthSuccess(data.user);
         onClose();
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Authentication failed. Please check your details.');
+      setErrorMsg(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '32px', position: 'relative' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '490px', padding: '32px', position: 'relative', background: '#0f172a', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
         {/* Close Button */}
         <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', color: '#9ca3af', fontSize: '1.4rem', cursor: 'pointer' }}>
           ✕
         </button>
 
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
-          {authMode === 'login' ? 'Welcome Back' : 'Create New Account'}
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '8px', color: '#ffffff' }}>
+          {authMode === 'login' ? 'Sign In to Your Account' : `Create New ${role.toUpperCase()} Account`}
         </h2>
-        <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: '24px' }}>
-          {authMode === 'login' ? 'Sign in to access your saved resume fit scores & analyses' : 'Register your account to unlock AI-based ATS resume analysis'}
+        <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginBottom: '20px' }}>
+          {authMode === 'login' ? 'Enter your credentials to access your portal' : 'Register to unlock AI resume scoring, ATS optimization, or candidate analytics'}
         </p>
 
         {errorMsg && (
@@ -89,7 +95,7 @@ export default function AuthModal({ isOpen, mode, onClose, onAuthSuccess }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {authMode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>Full Name <span style={{ color: '#f43f5e' }}>*</span></label>
               <input
                 type="text"
                 required

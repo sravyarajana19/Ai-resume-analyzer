@@ -153,7 +153,7 @@ async def analyze_resume_endpoint(
 
     # Determine Job Description
     job_text = ""
-    job_title = custom_job_title or "Target Role"
+    job_title = (custom_job_title or "").strip() or "Target Role"
     jd_id = job_description_id
 
     if jd_id:
@@ -169,10 +169,25 @@ async def analyze_resume_endpoint(
         # Fallback default Python/AI Engineer JD
         job_text = "Python, FastAPI, SQL, Machine Learning, Scikit-learn, React, Git, Problem Solving, REST APIs."
 
+    user_id = user.id if user else 1
+
+    # If this was a custom entered job, persist it as a JobDescription entity
+    if not jd_id:
+        new_jd = JobDescription(
+            user_id=user_id,
+            title=job_title,
+            department="Custom Target",
+            raw_text=job_text,
+            required_skills=extract_skills_from_text(job_text),
+            min_experience="As Specified in JD"
+        )
+        db.add(new_jd)
+        db.commit()
+        db.refresh(new_jd)
+        jd_id = new_jd.id
+
     # Compute NLP Fit Score & ATS Engine Results
     result = calculate_job_fit_score(extracted_resume_text, job_text)
-
-    user_id = user.id if user else 1
 
     # Save Resume Record
     new_resume = Resume(
@@ -202,7 +217,7 @@ async def analyze_resume_endpoint(
     analysis_record = AnalysisResult(
         user_id=user_id,
         resume_id=new_resume.id,
-        job_description_id=jd_id or 1,
+        job_description_id=jd_id,
         overall_fit_score=result["overall_fit_score"],
         matched_skills=result["matched_skills"],
         missing_skills=result["missing_skills"],
@@ -244,10 +259,11 @@ def optimize_resume_endpoint(
     job = db.query(JobDescription).filter(JobDescription.id == analysis.job_description_id).first()
 
     job_text = job.raw_text if job else "Python, Machine Learning, SQL, FastAPI, React, Git, Cloud"
+    job_title = job.title if job else "Software Engineer"
 
     # Generate Boosted Resume Text with 96%+ ATS Fit Score
     optimized_text, boosted_score = generate_optimized_96_plus_resume(
-        resume.raw_text, job_text, analysis.missing_skills
+        resume.raw_text, job_text, analysis.missing_skills or [], job_title
     )
 
     analysis.optimized_resume_text = optimized_text
@@ -256,9 +272,10 @@ def optimize_resume_endpoint(
 
     return {
         "analysis_id": analysis.id,
+        "job_title": job_title,
         "previous_score": analysis.overall_fit_score,
         "boosted_ats_score": boosted_score,
-        "missing_skills_added": analysis.missing_skills,
+        "missing_skills_added": analysis.missing_skills or [],
         "optimized_resume_text": optimized_text
     }
 

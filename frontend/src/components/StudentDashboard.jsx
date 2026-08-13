@@ -1,13 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { api } from '../api/client';
 import ResumeOptimizerModal from './ResumeOptimizerModal';
 
-export default function StudentDashboard({ currentUser, onOpenAuth }) {
-  const [jobs, setJobs] = useState([]);
-  const [selectedJdId, setSelectedJdId] = useState('');
-  const [customJobTitle, setCustomJobTitle] = useState('');
-  const [customJobText, setCustomJobText] = useState('');
+// Sample presets for quick testing during hackathon demo
+const SAMPLE_JDS = [
+  {
+    title: "Python Full-Stack Developer",
+    text: "We are seeking a Python Full-Stack Developer proficient in Python, FastAPI, React.js, JavaScript, PostgreSQL, Docker, Git, RESTful APIs, and CI/CD pipelines. Experience in building scalable microservices and implementing Agile methodologies is required."
+  },
+  {
+    title: "AI & Machine Learning Engineer",
+    text: "Looking for an AI/ML Engineer with expertise in Python, Machine Learning, Deep Learning, NLP, Scikit-Learn, PyTorch, TensorFlow, Pandas, NumPy, SQL, and Cloud deployments on AWS or GCP. Strong mathematical foundations and problem solving skills required."
+  },
+  {
+    title: "Data Analyst & Business Intelligence",
+    text: "Hiring Data Analyst with strong hands-on experience in SQL, Python, Pandas, Power BI, Tableau, Data Analysis, Statistics, Predictive Modeling, and Excel. Must have excellent communication skills and ability to translate data into business insights."
+  }
+];
 
+const SAMPLE_RESUME = `PRIYA SHARMA
+Email: priya.sharma@gmail.com | Phone: +91 98765 43210 | Location: Hyderabad, India
+LinkedIn: linkedin.com/in/priyasharma
+
+PROFESSIONAL SUMMARY
+Passionate Software Developer with 2 years of experience building web applications and backend systems using Python, Django, HTML, CSS, JavaScript, and MySQL. Eager to leverage skills in developing high-impact scalable software solutions.
+
+TECHNICAL SKILLS
+• Programming: Python, JavaScript, SQL, HTML5, CSS3
+• Frameworks & Tools: Django, Flask, Git, GitHub, MySQL, SQLite
+• Methodologies: Agile, Scrum, Problem Solving
+
+WORK EXPERIENCE
+Software Developer | TechWave Labs (2023 - Present)
+• Developed responsive web applications using Python, Django, and JavaScript.
+• Integrated REST APIs and database models using MySQL, improving data query speeds by 20%.
+• Collaborated in weekly Agile sprint cycles, conducting code reviews and unit testing.
+
+PROJECTS
+E-Commerce Web Portal
+• Built a full-featured e-commerce web platform with user authentication, product catalog, and checkout flow using Python Django and MySQL.
+
+EDUCATION
+Bachelor of Technology (B.Tech) in Computer Science
+JNTU University | GPA: 8.5 / 10.0 (2019 - 2023)`;
+
+export default function StudentDashboard({ currentUser, onOpenAuth }) {
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeText, setResumeText] = useState('');
 
@@ -18,20 +57,14 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
   const [showOptimizerModal, setShowOptimizerModal] = useState(false);
   const [optimizedData, setOptimizedData] = useState(null);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+  const handleLoadSampleJd = (sample) => {
+    setJobTitle(sample.title);
+    setJobDescription(sample.text);
+  };
 
-  const fetchJobs = async () => {
-    try {
-      const data = await api.getJobs();
-      setJobs(data);
-      if (data.length > 0) {
-        setSelectedJdId(data[0].id);
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const handleLoadSampleResume = () => {
+    setResumeFile(null);
+    setResumeText(SAMPLE_RESUME);
   };
 
   const handleAnalyze = async (e) => {
@@ -41,28 +74,35 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
       setErrorMsg('Please Sign In or Create an Account first to analyze your resume.');
       return;
     }
+
+    if (!jobTitle.trim()) {
+      setErrorMsg('Please enter a Target Job Title (e.g. Python Developer, Data Analyst).');
+      return;
+    }
+
+    if (!jobDescription.trim()) {
+      setErrorMsg('Please paste the Target Job Description text.');
+      return;
+    }
+
+    if (!resumeFile && !resumeText.trim()) {
+      setErrorMsg('Please upload your resume file (.pdf / .docx) or paste your resume text.');
+      return;
+    }
+
     setErrorMsg('');
     setLoading(true);
     setAnalysisResult(null);
 
     try {
       const formData = new FormData();
-      if (selectedJdId) {
-        formData.append("job_description_id", selectedJdId);
-      }
-      if (customJobTitle) {
-        formData.append("custom_job_title", customJobTitle);
-      }
-      if (customJobText) {
-        formData.append("custom_job_text", customJobText);
-      }
+      formData.append("custom_job_title", jobTitle.trim());
+      formData.append("custom_job_text", jobDescription.trim());
 
       if (resumeFile) {
         formData.append("file", resumeFile);
-      } else if (resumeText) {
-        formData.append("resume_text", resumeText);
       } else {
-        throw new Error("Please upload a resume file (PDF/DOCX) or paste resume text.");
+        formData.append("resume_text", resumeText.trim());
       }
 
       const res = await api.analyzeResume(formData);
@@ -79,7 +119,10 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
     try {
       setLoading(true);
       const res = await api.optimizeResume(analysisResult.analysis_id);
-      setOptimizedData(res);
+      setOptimizedData({
+        ...res,
+        job_title: jobTitle || analysisResult.job_title || 'Target Role'
+      });
       setShowOptimizerModal(true);
     } catch (err) {
       alert(err.message || "Optimization failed");
@@ -98,23 +141,23 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
               ⚡ AI-Powered Resume Scoring & Optimization
             </div>
             <h2 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Student & Job Seeker Portal</h2>
-            <p style={{ color: '#9ca3af', maxWidth: '650px', fontSize: '0.95rem' }}>
-              Upload your resume and select a Job Description. Our NLP algorithm extracts skills, checks formatting compliance, calculates an explainable fit score, and auto-generates a 96%+ ATS boosted resume!
+            <p style={{ color: '#9ca3af', maxWidth: '680px', fontSize: '0.95rem' }}>
+              Enter your target job title & job description, upload your resume, and let our NLP AI calculate your ATS match score, detect missing skills, and auto-generate an <strong>ATS 96%+ Boosted Resume</strong>!
             </p>
           </div>
           {analysisResult && (
-            <button onClick={handleBoostResumeScore} className="btn-emerald">
-              ✨ Auto-Boost ATS Score to 96%+
+            <button onClick={handleBoostResumeScore} className="btn-emerald" style={{ boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' }}>
+              🚀 Auto-Boost ATS Score to 96%+
             </button>
           )}
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '28px' }}>
         {/* Input Form Column */}
         <div className="glass-card" style={{ padding: '28px' }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>📄</span> Resume & Job Target Setup
+            <span>📄</span> Enter Job Details & Upload Resume
           </h3>
 
           {errorMsg && (
@@ -123,10 +166,37 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
             </div>
           )}
 
-          <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Direct Target Job Title & Description Inputs */}
+          {/* Quick Demo Fillers */}
+          <div style={{ marginBottom: '20px', padding: '12px 14px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#9ca3af', marginBottom: '8px' }}>
+              💡 Quick-Fill Sample Job Descriptions (1-Click Test):
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {SAMPLE_JDS.map((sample, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleLoadSampleJd(sample)}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '0.75rem',
+                    background: 'rgba(99, 102, 241, 0.15)',
+                    color: '#a5b4fc',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ⚡ {sample.title}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            {/* Target Job Title Input */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>
                 Target Job Title <span style={{ color: '#f43f5e' }}>*</span>
               </label>
               <input
@@ -134,65 +204,81 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
                 required
                 className="input-field"
                 placeholder="Enter Job Title (e.g. Python Developer, Data Analyst, Software Engineer)"
-                value={customJobTitle}
-                onChange={(e) => setCustomJobTitle(e.target.value)}
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
               />
             </div>
 
+            {/* Target Job Description Textarea */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>
                 Target Job Description Requirements <span style={{ color: '#f43f5e' }}>*</span>
               </label>
               <textarea
                 required
                 className="textarea-field"
                 placeholder="Paste the full Job Description text, required technical skills, and responsibilities here..."
-                value={customJobText}
-                onChange={(e) => setCustomJobText(e.target.value)}
-                style={{ minHeight: '140px' }}
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                style={{ minHeight: '130px' }}
               />
             </div>
 
             {/* Upload File / Paste Resume */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
-                Upload Resume File (PDF / DOCX)
-              </label>
-              <div style={{ border: '2px dashed rgba(99, 102, 241, 0.4)', borderRadius: '12px', padding: '20px', textAlign: 'center', background: 'rgba(15, 23, 42, 0.6)', cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db' }}>
+                  Upload Resume File (.pdf, .docx, .txt)
+                </label>
+                <button
+                  type="button"
+                  onClick={handleLoadSampleResume}
+                  style={{ background: 'none', border: 'none', color: '#06b6d4', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+                >
+                  💡 Load Sample Resume
+                </button>
+              </div>
+
+              <div style={{ border: '2px dashed rgba(99, 102, 241, 0.4)', borderRadius: '12px', padding: '18px', textAlign: 'center', background: 'rgba(15, 23, 42, 0.6)', cursor: 'pointer' }}>
                 <input
                   type="file"
                   accept=".pdf,.docx,.txt"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
                       setResumeFile(e.target.files[0]);
+                      setResumeText('');
                     }
                   }}
                   style={{ display: 'none' }}
                   id="resume-file-upload"
                 />
-                <label htmlFor="resume-file-upload" style={{ cursor: 'pointer' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '6px' }}>📁</div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#6366f1' }}>
-                    {resumeFile ? resumeFile.name : 'Click to Browse PDF or DOCX file'}
+                <label htmlFor="resume-file-upload" style={{ cursor: 'pointer', display: 'block' }}>
+                  <div style={{ fontSize: '1.8rem', marginBottom: '4px' }}>📁</div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#6366f1' }}>
+                    {resumeFile ? `Selected: ${resumeFile.name}` : 'Click to Browse PDF or DOCX File'}
                   </div>
-                  <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: '4px' }}>Supports PDF, DOCX, and TXT files</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '2px' }}>Supported formats: .pdf, .docx, .txt</div>
                 </label>
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '8px' }}>
-                Or Paste Resume Plain Text
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>
+                Or Paste Resume Text
               </label>
               <textarea
                 className="textarea-field"
-                placeholder="Paste raw resume text here if file upload is unavailable..."
+                placeholder="Paste raw resume text here if you don't have a file ready..."
                 value={resumeText}
-                onChange={(e) => setResumeText(e.target.value)}
+                onChange={(e) => {
+                  setResumeText(e.target.value);
+                  if (e.target.value) setResumeFile(null);
+                }}
+                style={{ minHeight: '110px' }}
               />
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '14px', justifyContent: 'center', fontSize: '1rem' }}>
+            <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '14px', justifyContent: 'center', fontSize: '1rem', marginTop: '4px' }}>
               {loading ? 'Analyzing Fit Score & NLP Keywords...' : '🔍 Analyze Resume Fit Score'}
             </button>
           </form>
@@ -204,7 +290,7 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
             <>
               {/* Score Meter Card */}
               <div className="glass-card" style={{ padding: '28px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#9ca3af', marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#9ca3af', marginBottom: '16px' }}>
                   OVERALL MATCH FIT SCORE
                 </div>
                 
@@ -222,7 +308,7 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
                 </h3>
 
                 <div style={{ marginTop: '16px' }}>
-                  <button onClick={handleBoostResumeScore} className="btn-emerald" style={{ width: '100%', justifyContent: 'center' }}>
+                  <button onClick={handleBoostResumeScore} className="btn-emerald" style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '0.95rem' }}>
                     🚀 Optimize Resume to 96%+ ATS Score
                   </button>
                 </div>
@@ -288,7 +374,7 @@ export default function StudentDashboard({ currentUser, onOpenAuth }) {
               <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📊</div>
               <h3 style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '8px' }}>No Analysis Generated Yet</h3>
               <p style={{ fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto' }}>
-                Select a target job role, upload your resume, and click "Analyze Resume Fit Score" to generate your detailed report.
+                Enter your target job title & description, upload your resume, and click "Analyze Resume Fit Score" to generate your detailed report.
               </p>
             </div>
           )}
