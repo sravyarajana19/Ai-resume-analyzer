@@ -52,13 +52,13 @@ export default function App() {
       {/* Main Content Body */}
       <main style={{ flex: 1 }}>
         {activeRole === 'student' && (
-          <StudentDashboard currentUser={currentUser} />
+          <StudentDashboard currentUser={currentUser} onOpenAuth={handleOpenAuth} />
         )}
         {activeRole === 'recruiter' && (
-          <RecruiterDashboard currentUser={currentUser} />
+          <RecruiterDashboard currentUser={currentUser} onOpenAuth={handleOpenAuth} />
         )}
         {activeRole === 'admin' && (
-          <AdminDashboard currentUser={currentUser} />
+          <AdminDashboard currentUser={currentUser} onOpenAuth={handleOpenAuth} />
         )}
       </main>
 

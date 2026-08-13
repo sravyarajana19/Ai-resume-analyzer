@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import ResumeOptimizerModal from './ResumeOptimizerModal';
 
-export default function StudentDashboard({ currentUser }) {
+export default function StudentDashboard({ currentUser, onOpenAuth }) {
   const [jobs, setJobs] = useState([]);
   const [selectedJdId, setSelectedJdId] = useState('');
   const [customJobTitle, setCustomJobTitle] = useState('');
@@ -36,6 +36,11 @@ export default function StudentDashboard({ currentUser }) {
 
   const handleAnalyze = async (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      if (onOpenAuth) onOpenAuth('login');
+      setErrorMsg('Please Sign In or Create an Account first to analyze your resume.');
+      return;
+    }
     setErrorMsg('');
     setLoading(true);
     setAnalysisResult(null);
