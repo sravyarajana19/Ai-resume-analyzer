@@ -23,57 +23,24 @@ export default function Navbar({ activeRole, setActiveRole, currentUser, onOpenA
           </div>
         </div>
 
-        {/* Role Navigation Tabs (Only visible when user is logged in) */}
+        {/* Role Navigation Badge (Strictly locked to assigned account role) */}
         {currentUser && (
-          <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '4px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-            <button
-              onClick={() => setActiveRole('student')}
-              style={{
-                padding: '8px 18px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeRole === 'student' ? '#6366f1' : 'transparent',
-                color: activeRole === 'student' ? '#ffffff' : '#9ca3af',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              🎓 Student Portal
-            </button>
-            <button
-              onClick={() => setActiveRole('recruiter')}
-              style={{
-                padding: '8px 18px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeRole === 'recruiter' ? '#6366f1' : 'transparent',
-                color: activeRole === 'recruiter' ? '#ffffff' : '#9ca3af',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              💼 Recruiter Portal
-            </button>
-            <button
-              onClick={() => setActiveRole('admin')}
-              style={{
-                padding: '8px 18px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeRole === 'admin' ? '#6366f1' : 'transparent',
-                color: activeRole === 'admin' ? '#ffffff' : '#9ca3af',
-                fontWeight: 600,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              🛡️ Admin Analytics
-            </button>
+          <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '6px 16px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.3)', alignItems: 'center', gap: '8px' }}>
+            {currentUser.role === 'student' && (
+              <div style={{ color: '#34d399', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🎓</span> Student & Job Seeker Workspace
+              </div>
+            )}
+            {currentUser.role === 'recruiter' && (
+              <div style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>💼</span> Recruiter Candidate Ranking Workspace
+              </div>
+            )}
+            {currentUser.role === 'admin' && (
+              <div style={{ color: '#fb7185', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🛡️</span> System Admin Analytics Workspace
+              </div>
+            )}
           </div>
         )}
 
