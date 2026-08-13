@@ -456,6 +456,7 @@ if os.path.exists(frontend_dist_path):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API endpoint not found.")
         file_path = os.path.join(frontend_dist_path, full_path)
+        headers = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
         if os.path.exists(file_path) and os.path.isfile(file_path):
-            return FileResponse(file_path)
-        return FileResponse(os.path.join(frontend_dist_path, "index.html"))
+            return FileResponse(file_path, headers=headers)
+        return FileResponse(os.path.join(frontend_dist_path, "index.html"), headers=headers)
