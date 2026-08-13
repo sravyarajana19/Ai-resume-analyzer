@@ -11,7 +11,6 @@ class UserRegister(BaseModel):
     role: Optional[str] = Field("student", description="Role: student, recruiter, or admin")
 
     @field_validator("email")
-
     @classmethod
     def validate_gmail(cls, v: str) -> str:
         v = v.strip().lower()

@@ -21,8 +21,17 @@ export async function request(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const errorMsg = data.detail || (Array.isArray(data.detail) ? data.detail[0]?.msg : "An error occurred");
-    throw new Error(errorMsg || "Request failed");
+    let errorMsg = "Request failed";
+    if (typeof data.detail === "string") {
+      errorMsg = data.detail;
+    } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+      const firstErr = data.detail[0];
+      errorMsg = typeof firstErr === "string" ? firstErr : (firstErr.msg || JSON.stringify(firstErr));
+      errorMsg = errorMsg.replace(/^Value error,\s*/i, "");
+    } else if (data.detail && typeof data.detail === "object") {
+      errorMsg = data.detail.msg || JSON.stringify(data.detail);
+    }
+    throw new Error(errorMsg);
   }
 
   return data;
