@@ -19,6 +19,12 @@ export default function AuthModal({ isOpen, mode, initialRole, onClose, onAuthSu
 
   if (!isOpen) return null;
 
+  // Real-time Name / Username validation logic (Strictly String Characters Only, NO Numbers)
+  const isNameLengthValid = fullName.trim().length >= 2 && fullName.trim().length <= 50;
+  const isNameNoNumbers = !/\d/.test(fullName);
+  const isNameOnlyLetters = /^[a-zA-Z\s.'-]+$/.test(fullName.trim());
+  const isNameValid = isNameLengthValid && isNameNoNumbers && isNameOnlyLetters;
+
   // Real-time Gmail validation logic
   const isGmailEnd = email.toLowerCase().endsWith('@gmail.com');
   const prefix = isGmailEnd ? email.slice(0, -10) : '';
@@ -43,6 +49,9 @@ export default function AuthModal({ isOpen, mode, initialRole, onClose, onAuthSu
 
     try {
       if (authMode === 'register') {
+        if (!isNameValid) {
+          throw new Error('Full Name / Username must contain only string letters (no numbers or digits allowed).');
+        }
         if (!isEmailValid) {
           throw new Error('Please ensure your Gmail matches all length and character requirements (6-30 chars, letters & numbers, @gmail.com).');
         }
@@ -50,7 +59,7 @@ export default function AuthModal({ isOpen, mode, initialRole, onClose, onAuthSu
           throw new Error('Please ensure your password satisfies all security criteria (8-32 chars, uppercase, lowercase, numbers, symbols).');
         }
         const data = await api.register({
-          full_name: fullName,
+          full_name: fullName.trim(),
           email: email.trim().toLowerCase(),
           password,
           role
@@ -95,17 +104,26 @@ export default function AuthModal({ isOpen, mode, initialRole, onClose, onAuthSu
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {authMode === 'register' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>Full Name <span style={{ color: '#f43f5e' }}>*</span></label>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>
+                Full Name / Username <span style={{ color: '#f43f5e' }}>*</span>
+              </label>
               <input
                 type="text"
                 required
                 className="input-field"
-                placeholder="Enter your full name"
+                placeholder="Enter your name (letters only, no numbers)"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
+              {fullName.length > 0 && (
+                <div style={{ marginTop: '6px', padding: '8px 10px', background: 'rgba(15, 23, 42, 0.9)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '0.76rem' }}>
+                  <div style={{ color: isNameOnlyLetters ? '#34d399' : '#fb7185' }}>• Must contain only alphabetical letters (a-z, A-Z)</div>
+                  <div style={{ color: isNameNoNumbers ? '#34d399' : '#fb7185' }}>• Numbers are NOT allowed ({isNameNoNumbers ? 'Pass' : 'Contains Numbers!'})</div>
+                </div>
+              )}
             </div>
           )}
+
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#d1d5db', marginBottom: '6px' }}>

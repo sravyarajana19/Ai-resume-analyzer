@@ -10,6 +10,18 @@ class UserRegister(BaseModel):
     password: str
     role: Optional[str] = Field("student", description="Role: student, recruiter, or admin")
 
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 2 or len(v) > 100:
+            raise ValueError("Full Name / Username must be between 2 and 100 characters long.")
+        if re.search(r"\d", v):
+            raise ValueError("Full Name / Username cannot contain numbers. Only alphabetical letters (a-z, A-Z) and spaces are allowed.")
+        if not re.match(r"^[a-zA-Z\s.'-]+$", v):
+            raise ValueError("Full Name / Username can only contain alphabetical letters (a-z, A-Z) and spaces.")
+        return v
+
     @field_validator("email")
     @classmethod
     def validate_gmail(cls, v: str) -> str:
